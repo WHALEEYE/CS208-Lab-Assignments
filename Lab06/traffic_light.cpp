@@ -1,10 +1,11 @@
 #include <iostream>
+#include <queue>
 #include <vector>
 using namespace std;
 
 struct Edge {
   int dest;
-  int weight;
+  long long weight;
 };
 
 struct GraphNode {
@@ -15,35 +16,24 @@ struct GraphNode {
   vector<Edge *> edges;
 };
 
-GraphNode **grp = new GraphNode *[10010];
-GraphNode *temp_node;
-Edge *temp_edge;
-long long temp_mod, temp_time, temp_min;
-long long *pi = new long long[10010];
-long long time = 0;
-
-void find_min(GraphNode *cur) {
-  temp_min = INT64_MAX;
-  for (int i = 0; i < cur->edges.size(); i++) {
-    temp_edge = cur->edges[i];
-    temp_node = grp[temp_edge->dest];
-    temp_time = time + temp_edge->weight;
-    temp_mod = temp_time % (temp_node->a + temp_node->b);
-    if (temp_mod < temp_node->a) {
-      temp_time += temp_node->a - temp_mod;
-    }
-    pi[temp_edge->dest] =
-        temp_time < pi[temp_edge->dest] ? temp_time : pi[temp_edge->dest];
-    temp_min = temp_time < temp_min ? temp_time : temp_min;
-  }
-}
+struct comp {
+  bool operator()(Edge *a, Edge *b) { return a->weight > b->weight; }
+};
 
 int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+  cout.tie(0);
   int n, m, u, v, w;
   cin >> n >> m;
+  long long time = 0, temp_mod, temp_weight;
+  priority_queue<Edge *, vector<Edge *>, comp> pq;
+  GraphNode **grp = new GraphNode *[n + 1];
+  GraphNode *cur_node, *temp_node;
+  Edge *cur_edge, *temp_edge;
+  long long *pi = new long long[n + 1];
   for (int i = 1; i <= n; i++) {
     grp[i] = new GraphNode{i, false};
-    pi[i] = INT64_MAX;
   }
   for (int i = 0; i < m; i++) {
     cin >> u >> v >> w;
@@ -52,5 +42,33 @@ int main() {
   for (int i = 1; i <= n; i++) {
     cin >> grp[i]->a >> grp[i]->b;
   }
-  pi[1] = 0;
+  pq.push(new Edge{1, 0});
+  while (!pq.empty()) {
+    cur_edge = pq.top();
+    pq.pop();
+    cur_node = grp[cur_edge->dest];
+    if (cur_node->visited) {
+      continue;
+    }
+    cur_node->visited = true;
+    pi[cur_edge->dest] = cur_edge->weight;
+    for (int i = 0; i < cur_node->edges.size(); i++) {
+      temp_edge = cur_node->edges[i];
+      temp_node = grp[temp_edge->dest];
+      if (temp_node->visited) {
+        continue;
+      }
+      temp_mod = (cur_edge->weight + temp_edge->weight) %
+                 (temp_node->a + temp_node->b);
+      if (temp_mod < temp_node->a) {
+        pq.push(new Edge{temp_edge->dest, cur_edge->weight + temp_edge->weight +
+                                              temp_node->a - temp_mod});
+      } else {
+        pq.push(
+            new Edge{temp_edge->dest, cur_edge->weight + temp_edge->weight});
+      }
+    }
+  }
+  cout << pi[n];
+  return 0;
 }
