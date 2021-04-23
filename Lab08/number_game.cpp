@@ -59,7 +59,8 @@ int main() {
           break;
       }
     }
-    if (changed || !process[0][i]) {
+    if (changed || process[0][i]) {
+      m_bit2 = 1 ^ m_bit1;
       for (int j = 1; j <= n; j++) {
         switch (process[j][0]) {
           case 0:
@@ -74,7 +75,7 @@ int main() {
         }
       }
     }
-    if (!changed && !process[0][i]) {
+    if (!changed && process[0][i]) {
       changed = (m_bit2 >= m_bit1);
     }
     rst *= 2;
