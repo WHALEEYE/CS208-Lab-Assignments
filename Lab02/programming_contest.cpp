@@ -5,9 +5,9 @@ using namespace std;
 bool compare(long long a, long long b) { return a > b; }
 
 int main() {
-  // ios::sync_with_stdio(false);
-  // cin.tie(0);
-  // cout.tie(0);
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+  cout.tie(0);
   long long t, n, a, s;
   long long max, sum1, sum2, temp1, temp2;
   int alr1, alr2;
