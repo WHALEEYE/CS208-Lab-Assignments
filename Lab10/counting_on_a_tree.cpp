@@ -1,5 +1,5 @@
+#include <algorithm>
 #include <iostream>
-#include <queue>
 using namespace std;
 
 struct GraphNode {
@@ -13,9 +13,7 @@ struct Edge {
   int weight;
 };
 
-struct comp {
-  bool operator()(Edge *a, Edge *b) { return a->weight > b->weight; }
-};
+bool comp(Edge *a, Edge *b) { return a->weight < b->weight; }
 
 GraphNode *find(GraphNode *a) {
   if (a == a->prt) {
@@ -39,7 +37,7 @@ int main() {
   cin >> n >> m;
   GraphNode **grp = new GraphNode *[n + 1];
   Edge *temp_edge;
-  priority_queue<Edge *, vector<Edge *>, comp> pq;
+  Edge **pq = new Edge *[n - 1];
   int query[m];
   for (int i = 1; i <= n; i++) {
     grp[i] = new GraphNode{NULL, 1};
@@ -47,22 +45,20 @@ int main() {
   }
   for (int i = 0; i < n - 1; i++) {
     cin >> u >> v >> w;
-    pq.push(new Edge{u, v, w});
+    pq[i] = new Edge{u, v, w};
   }
+  sort(pq, pq + n - 1, comp);
   for (int i = 0; i < m; i++) {
     cin >> query[i];
     maxq = query[i] > maxq ? query[i] : maxq;
   }
   long long *pairs = new long long[maxq + 1]();
-  while (!pq.empty()) {
-    temp_edge = pq.top();
-    pq.pop();
+  for (int i = 0; i < n - 1; i++) {
+    temp_edge = pq[i];
     if (temp_edge->weight > maxq) {
       break;
     }
-    if (find(grp[temp_edge->v1]) == find(grp[temp_edge->v2])) {
-      continue;
-    } else {
+    if (find(grp[temp_edge->v1]) != find(grp[temp_edge->v2])) {
       pairs[temp_edge->weight] +=
           find(grp[temp_edge->v1])->size * find(grp[temp_edge->v2])->size;
       merge(grp[temp_edge->v1], grp[temp_edge->v2]);
